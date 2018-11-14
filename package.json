@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +18,6 @@
   "homepage": "https://github.com/PokecardIUT/SIGprojet#readme",
   "dependencies": {
     "express": "^4.16.4",
-    "sqlite": "3.0.0"
+    "sqlite3": "^4.0.4"
   }
 }
