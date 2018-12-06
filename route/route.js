@@ -5,7 +5,8 @@ var SqliteManager = require('../controller/SqliteManager.js')
 
 // ABOUT
 
-router.get("/", SigController);
+router.get("/", SigController.createTable);
+router.get("/parcourLargeur", SigController.parcourLargeur);
 router.get("/geo_point", SqliteManager.getPoint);
 router.get("/geo_arc", SqliteManager.getArc);
 router.get("/geo_version", SqliteManager.getVersion);
