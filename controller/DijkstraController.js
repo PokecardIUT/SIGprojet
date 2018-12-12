@@ -3,67 +3,74 @@ var sqlite3 = require("sqlite3").verbose();
 var db = new sqlite3.Database("lp_iem_sig.sqlite");
 var kml = require("tokml");
 var Point = require("../model/point.js");
+var Graph = require("node-dijkstra");
+
 
 var DijkstraController = {
   dijkstra: async (req, res) => {
     let points = await createTableAdj();
-
-    let stringd =
-      '{ "A": { "B": 1 }, "B" : { "A":1, "C":2, "D": 4 }, "C" : { "B":2, "D":1 }, "D" : { "C":1, "B":4 } }';
-
-    let json = JSON.parse(stringd);
+    let listAllPoints = await getAllPoint();
 
     let stringGraph = "{";
+
     let counter2 = 0;
-    await new Promise(async resolve => {
-      points.forEach(async point => {
-        stringGraph += `\"${point.sommet}\": {`;
-        console.log()
-        let counter = 0;
-        await new Promise(async resolve2 => {
-          point.arc.forEach(async arc => {
-            let sommet1 = await getPoint(point.sommet);
-            let sommet2 = await getPoint(arc);
+    points.forEach(point => {
+      stringGraph += `\"${point.sommet}\": {`;
+      let counter = 0;
+      point.arc.forEach(arc => {
+        let sommet1, sommet2;
+        listAllPoints.forEach(val => {
+          if (val.GEO_POI_ID == point.sommet) {
+            sommet1 = val;
+          } else if (val.GEO_POI_ID == arc) {
+            sommet2 = val
+          }
+        })
 
-            let distance = calculDistance(sommet1, sommet2);
+        let distance = calculDistance(sommet1, sommet2)
+        if (distance == 0) {
+        } else {
 
-            console.log(distance);
-
+          if (counter == point.arc.length - 1) {
             stringGraph += `\"${arc}\":${distance}`;
-            console.log("2", counter, "  ", point.arc.length);
-
-            if (counter == point.arc.length) {
-              resolve2();
-            }
-            counter++;
-          });
-        });
-        stringGraph += `},`;
-      });
-      console.log("1", counter2, "  ", points.length);
-      if (counter2 == points.length) {
-        resolve();
+          } else {
+            stringGraph += `\"${arc}\":${distance},`;
+          }
+        }
+        counter++;
+      })
+      if(stringGraph[stringGraph.length-1] == ","){
+        stringGraph = stringGraph.substring(0,stringGraph.length-1)
       }
-      counter2++;
-    });
+      if (counter2 == points.length - 1) {
+        stringGraph += "}";
+      } else {
+        stringGraph += "},";
+      }
+      counter2++
+    })
 
-    console.log(stringGraph);
+    stringGraph += "}";
 
-    let jsonGraph = JSON.parse(stringGraph);
+    let jsonGraph
+    try {
+      jsonGraph = JSON.parse(stringGraph);
+    } catch (e) {
+      throw e
+    }
 
-    const Graph = require("node-dijkstra");
+    const route = new Graph(jsonGraph);
 
-    const route = new Graph(json);
+    let path = route.path("123", "120");
 
-    let path = route.path("A", "C"); // => [ 'A', 'B', 'C', 'D' ]
-    res.json(jsonGraph);
+    res.json(path);
   }
 };
 
 async function createTableAdj() {
   points = new Array();
   await new Promise((resolve, reject) => {
-    db.all("SELECT * FROM GEO_POINT WHERE GEO_POI_ID", function(err, rows) {
+    db.all("SELECT * FROM GEO_POINT WHERE GEO_POI_ID", function (err, rows) {
       if (err) {
         throw err;
       }
@@ -83,9 +90,9 @@ async function createTableAdj() {
       await new Promise((resolve, reject) => {
         db.all(
           `SELECT * FROM GEO_ARC WHERE GEO_ARC_DEB = ${
-            point.sommet
+          point.sommet
           } OR GEO_ARC_FIN = ${point.sommet}`,
-          function(err, values) {
+          function (err, values) {
             if (err) {
               throw err;
             }
@@ -111,20 +118,18 @@ async function createTableAdj() {
   return points;
 }
 
-async function getPoint(sommet) {
-  let point;
+async function getAllPoint() {
+  let points;
   await new Promise(resolve => {
-    db.all("SELECT * FROM GEO_POINT WHERE GEO_POI_ID =" + sommet, function(
+    db.all("SELECT * FROM GEO_POINT", function (
       err,
       rows
     ) {
-      rows.forEach(row => {
-        point = row;
-      });
+      points = rows
       resolve();
     });
   });
-  return point;
+  return points;
 }
 
 function calculDistance(sommet1, sommet2) {
