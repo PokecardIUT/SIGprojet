@@ -115,7 +115,7 @@ result = [];
 
 function imprimer(arbre, debut, fin) {
   let deb;
-  let bla;
+  let foundSommet;
   arbre.forEach(res => {
     if (res.sommet == debut) {
       deb = res;
@@ -126,11 +126,11 @@ function imprimer(arbre, debut, fin) {
     return deb.sommet;
   } else if (deb.arc.length > 0) {
     deb.arc.forEach(val => {
-      if (bla === undefined) {
-        bla = imprimer(arbre, val, fin);
+      if (foundSommet === undefined) {
+        foundSommet = imprimer(arbre, val, fin);
       }
     });
-    if (bla !== undefined) {
+    if (foundSommet !== undefined) {
       result.push(deb.sommet);
       return deb.sommet;
     }
