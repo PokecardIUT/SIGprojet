@@ -20,7 +20,6 @@
     "express": "^4.16.4",
     "sqlite3": "^4.0.4",
     "tokml": "^0.4.0",
-    "write-file": "^1.0.0",
-    "gtran-kml": "^1.2.2"
+    "write-file": "^1.0.0"
   }
 }
