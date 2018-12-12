@@ -101,7 +101,6 @@ var SigController = {
       if (err) {
         throw err;
       }
-      console.log("file write");
     });
 
     if (result.length === 0) {
