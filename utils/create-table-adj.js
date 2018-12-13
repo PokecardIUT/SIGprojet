@@ -12,7 +12,7 @@ async function createTableAdj() {
         }
   
         rows.forEach(row => {
-          point = new Point(row.GEO_POI_ID, row.GEO_POI_NOM);
+          point = new Point(row.GEO_POI_ID, row.GEO_POI_NOM,"");
   
           points.push(point);
         });

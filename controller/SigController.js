@@ -5,8 +5,14 @@ var Point = require("../model/point.js");
 var write = require("write-file");
 var createTableAdj = require('../utils/create-table-adj.js')
 var getAllPoint = require('../utils/getAllPoints')
+var template = require("../src/template")
+var formatXML = require("../utils/indentXml")
 
 var SigController = {
+  template: (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.send(template);
+  },
   createTable: async (req, res) => {
     let points = await createTableAdj();
     res.header('Access-Control-Allow-Origin', '*');
@@ -51,25 +57,28 @@ var SigController = {
       arbrePoint.push(arbre);
     }
     imprimer(arbrePoint, pointDepart, pointFin);
-    result = result.reverse();
 
-    let kmlString = `
-      <?xml version="1.0" encoding="UTF-8"?>
+    result = result.reverse();
+    var x=Math.round(0xffffff * Math.random()).toString(16);
+    var y=(6-x.length);
+    var z="000000";
+    var z1 = z.substring(0,y);
+    var color= z1 + x;
+
+    let kmlString = `<?xml version="1.0" encoding="UTF-8"?>
       <kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
-          <name>Dijkstra</name>
-          <Style id="yellowLineGreenPoly">
+          <name>Parcours en largeur</name>
+          <Style id="colorPL">
           <LineStyle>
-            <color>7f00ffff</color>
+            <color>${color}</color>
             <width>12</width>
           </LineStyle>
         </Style>`;
 
       let featuresLineStiring = `
-      <Placemark> 
-        <name>Intineraire</name>
-        <description>Transparent green wall with yellow outlines</description>
-        <styleUrl>#yellowLineGreenPoly</styleUrl>
+      <Placemark>
+        <styleUrl>#colorPL</styleUrl>
         <LineString>
         <extrude>1</extrude>
         <tessellate>1</tessellate>
@@ -100,6 +109,8 @@ var SigController = {
       kmlString += featuresLineStiring;
       kmlString += `  </Document>
       </kml>`;
+
+      kmlString = formatXML(kmlString)
 
     write("output/Parcours-largeur.kml", kmlString, err => {
       if (err) {
@@ -143,6 +154,5 @@ function imprimer(arbre, debut, fin) {
     }
   }
 }
-
 
 module.exports = SigController;

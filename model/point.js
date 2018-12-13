@@ -1,9 +1,10 @@
 class Point {
-    constructor(sommet, name){
+    constructor(sommet, name, ligne){
         this.name = name;
         this.sommet = sommet;
         this.arc = new Array();
         this.color = "blanc";
+        this.ligne = ligne;
     }
 
     addArc(arc) {
