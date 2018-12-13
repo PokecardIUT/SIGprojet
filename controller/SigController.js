@@ -3,6 +3,8 @@ var db = new sqlite3.Database("lp_iem_sig.sqlite");
 var kml = require("tokml");
 var Point = require("../model/point.js");
 var write = require("write-file");
+var createTableAdj = require('../utils/create-table-adj.js')
+var getAllPoint = require('../utils/getAllPoints')
 
 var SigController = {
   createTable: async (req, res) => {
@@ -12,12 +14,12 @@ var SigController = {
   parcourLargeur: async (req, res) => {
     result = [];
     fifo = [];
-    marquer = [];
     arbrePoint = [];
-    let points = null;
     let pointDepart = req.query.first ? req.query.first : 1;
     let pointFin = req.query.end ? req.query.end : 180;
-    points = await createTableAdj();
+    let points = await createTableAdj();
+    let listAllPoints = await getAllPoint();
+    
     points.forEach(point => {
       if (point.sommet == pointDepart) {
         fifo.push(point.sommet);
@@ -30,7 +32,6 @@ var SigController = {
     }
     while (fifo.length !== 0) {
       s = fifo[0];
-      marquer.push(s);
       fifo.splice(0, 1);
       arbre = new Point(s);
       points.forEach(res => {
@@ -54,11 +55,14 @@ var SigController = {
     let geojson = {
       type: "FeatureCollection",
       name: "Mon parcours",
+
       features: [
         {
+
           type: "Feature",
           properties: {},
           geometry: {
+
             type: "LineString",
             coordinates: []
           }
@@ -66,34 +70,37 @@ var SigController = {
       ]
     };
 
+
+
     geojson.name = "Parcour-Largeur";
 
-    await new Promise(resolve => {
-      let counter = 0;
-      result.forEach(async res => {
-        let LatLong = new Array();
-        await new Promise(resolve2 => {
-          db.all(
-            "SELECT * FROM GEO_POINT WHERE GEO_POI_ID =" + res,
-            (err, rows) => {
-              if (err) {
-                throw err;
-              }
-              rows.forEach(row => {
-                LatLong.push(row.GEO_POI_LONGITUDE);
-                LatLong.push(row.GEO_POI_LATITUDE);
-              });
-              resolve2();
-            }
-          );
-        });
-        geojson.features[0].geometry.coordinates.push(LatLong);
-        counter++;
-        if (counter === result.length) {
-          resolve();
+
+    result.forEach(res => {
+      let LatLong = new Array();
+      let pointPlace =   {
+
+        type: "Feature",
+        properties: {
+          name: ""
+        },
+        geometry: {
+  
+          type: "Point",
+          coordinates: []
         }
-      });
-    });
+      }
+      listAllPoints.forEach(point => {
+        if(point.GEO_POI_ID == res){
+          LatLong.push(point.GEO_POI_LONGITUDE);
+          LatLong.push(point.GEO_POI_LATITUDE);
+          pointPlace.properties.name = point.GEO_POI_NOM
+
+        }
+      })
+      pointPlace.geometry.coordinates.push(LatLong);
+      geojson.features[0].geometry.coordinates.push(LatLong);
+      geojson.features.push(pointPlace)
+    })
 
     let resultKml = kml(geojson);
 
@@ -103,9 +110,12 @@ var SigController = {
       }
     });
 
-    if (result.length === 0) {
-      res.json({ error: "Il n'existe pas de parcours vers ce point" });
+    if (result.length === 0) {  
+      res.header('Access-Control-Allow-Origin', '*');
+    res.type("application/xml");
+    res.send("<error>Un point n'existe pas</error>");
     } else {
+      res.header('Access-Control-Allow-Origin', '*');
       res.type("application/xml");
       res.send(resultKml);
     }
@@ -115,7 +125,7 @@ result = [];
 
 function imprimer(arbre, debut, fin) {
   let deb;
-  let bla;
+  let foundSommet;
   arbre.forEach(res => {
     if (res.sommet == debut) {
       deb = res;
@@ -126,66 +136,16 @@ function imprimer(arbre, debut, fin) {
     return deb.sommet;
   } else if (deb.arc.length > 0) {
     deb.arc.forEach(val => {
-      if (bla === undefined) {
-        bla = imprimer(arbre, val, fin);
+      if (foundSommet === undefined) {
+        foundSommet = imprimer(arbre, val, fin);
       }
     });
-    if (bla !== undefined) {
+    if (foundSommet !== undefined) {
       result.push(deb.sommet);
       return deb.sommet;
     }
   }
 }
 
-async function createTableAdj() {
-  points = new Array();
-  await new Promise((resolve, reject) => {
-    db.all("SELECT * FROM GEO_POINT WHERE GEO_POI_ID", function(err, rows) {
-      if (err) {
-        throw err;
-      }
-
-      rows.forEach(row => {
-        point = new Point(row.GEO_POI_ID);
-
-        points.push(point);
-      });
-      resolve();
-    });
-  });
-
-  await new Promise((resolve, reject) => {
-    let i = 1;
-    points.forEach(async point => {
-      await new Promise((resolve, reject) => {
-        db.all(
-          `SELECT * FROM GEO_ARC WHERE GEO_ARC_DEB = ${
-            point.sommet
-          } OR GEO_ARC_FIN = ${point.sommet}`,
-          function(err, values) {
-            if (err) {
-              throw err;
-            }
-            values.forEach(value => {
-              if (value.GEO_ARC_DEB == point.sommet) {
-                point.addArc(value.GEO_ARC_FIN);
-              }
-              if (value.GEO_ARC_FIN == point.sommet) {
-                point.addArc(value.GEO_ARC_DEB);
-              }
-            });
-
-            resolve();
-          }
-        );
-      });
-      if (i == points.length) {
-        resolve();
-      }
-      i++;
-    });
-  });
-  return points;
-}
 
 module.exports = SigController;
