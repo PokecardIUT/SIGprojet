@@ -12,14 +12,14 @@ async function createTableAdj() {
         }
   
         rows.forEach(row => {
-          point = new Point(row.GEO_POI_ID);
+          point = new Point(row.GEO_POI_ID, row.GEO_POI_NOM);
   
           points.push(point);
         });
         resolve();
       });
     });
-  
+    
     await new Promise((resolve, reject) => {
       let i = 1;
       points.forEach(async point => {

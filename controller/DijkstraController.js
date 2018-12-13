@@ -3,6 +3,8 @@ var Graph = require("node-dijkstra");
 var createTableAdj = require("../utils/create-table-adj.js");
 var getAllPoint = require("../utils/getAllPoints.js");
 var write = require("write-file");
+var algoDij = require("../utils/algoDijkstra");
+var kml2 = require("gtran-kml");
 
 var DijkstraController = {
   dijkstra: async (req, res) => {
@@ -73,62 +75,195 @@ var DijkstraController = {
 
       let path = route.path(pointDepart, pointFin);
 
-      let geojson = {
-        type: "FeatureCollection",
-        name: "Mon parcours",
-        features: [
-          {
-            type: "Feature",
-            properties: {},
-            geometry: {
-              type: "LineString",
-              coordinates: []
-            }
-          }
-        ]
-      };
+      let kmlString = `
+      <?xml version="1.0" encoding="UTF-8"?>
+      <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <name>Dijkstra</name>
+          <Style id="yellowLineGreenPoly">
+          <LineStyle>
+            <color>7f00ffff</color>
+            <width>12</width>
+          </LineStyle>
+        </Style>`;
 
-      geojson.name = "Dijkstra";
+      let featuresLineStiring = `
+      <Placemark> 
+        <name>Intineraire</name>
+        <description>Transparent green wall with yellow outlines</description>
+        <styleUrl>#yellowLineGreenPoly</styleUrl>
+        <LineString>
+        <extrude>1</extrude>
+        <tessellate>1</tessellate>
+        <altitudeMode>absolute</altitudeMode>
+        <coordinates>`;
 
       path.forEach(res => {
-        let LatLong = new Array();
-        let pointPlace = {
-          type: "Feature",
-          properties: {
-            name: ""
-          },
-          geometry: {
-            type: "Point",
-            coordinates: []
-          }
-        };
+        let featuresPoint = `<Placemark>`;
         listAllPoints.forEach(point => {
           if (point.GEO_POI_ID == res) {
-            LatLong.push(point.GEO_POI_LONGITUDE);
-            LatLong.push(point.GEO_POI_LATITUDE);
-            pointPlace.properties.name = point.GEO_POI_NOM;
+            featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
+              point.GEO_POI_LATITUDE
+            } `;
+            featuresPoint += `<name>${
+              point.GEO_POI_NOM
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+              point.GEO_POI_LATITUDE
+            }</coordinates></Point></Placemark>`;
           }
         });
-        pointPlace.geometry.coordinates.push(LatLong);
-        geojson.features[0].geometry.coordinates.push(LatLong);
-        geojson.features.push(pointPlace);
+        kmlString += featuresPoint;
       });
 
-      let resultKml = kml(geojson);
+      featuresLineStiring += `</coordinates>
+      </LineString>
+      </Placemark>`;
 
-      write("output/" + geojson.name + ".kml", resultKml, err => {
+      kmlString += featuresLineStiring;
+      kmlString += `  </Document>
+      </kml>`;
+
+      write("output/Dijkstra.kml.kml", kmlString, err => {
         if (err) {
           throw err;
         }
       });
-      res.header('Access-Control-Allow-Origin', '*');
+      res.header("Access-Control-Allow-Origin", "*");
       res.type("application/xml");
-      res.send(resultKml);
+      res.send(kmlString);
     } else {
-      res.header('Access-Control-Allow-Origin', '*');
-    res.type("application/xml");
-    res.send("<error>Un point n'existe pas</error>");
+      res.header("Access-Control-Allow-Origin", "*");
+      res.type("application/xml");
+      res.send("<error>Un point n'existe pas</error>");
     }
+  },
+  getAllLigne: async (req, res) => {
+    let listAllPoints = await getAllPoint();
+    let stringGraph = await algoDij();
+
+    let jsonGraph;
+    try {
+      jsonGraph = JSON.parse(stringGraph);
+    } catch (e) {
+      throw e;
+    }
+
+    const route = new Graph(jsonGraph);
+
+    let path = route.path("1", "28");
+
+    let kmlString = `
+    <?xml version="1.0" encoding="UTF-8"?>
+    <kml xmlns="http://www.opengis.net/kml/2.2">
+      <Document>
+        <name>Dijkstra</name>
+        <Style id="lineOn">
+        <LineStyle>
+          <color>00ff00</color>
+          <width>12</width>
+        </LineStyle>
+      </Style>
+      <Style id="lineTwo">
+        <LineStyle>
+          <color>0000ff</color>
+          <width>12</width>
+        </LineStyle>
+      </Style>
+      <Style id="lineOn">
+        <LineStyle>
+          <color>00ff00</color>
+          <width>12</width>
+        </LineStyle>
+      </Style>
+      <Style id="lineOn">
+        <LineStyle>
+          <color>00ff00</color>
+          <width>12</width>
+        </LineStyle>
+      </Style>`;
+
+    let featuresLineStiring = `
+    <Placemark> 
+      <name>Intineraire</name>
+      <description>Transparent green wall with yellow outlines</description>
+      <styleUrl>#lineOn</styleUrl>
+      <LineString>
+      <extrude>1</extrude>
+      <tessellate>1</tessellate>
+      <altitudeMode>absolute</altitudeMode>
+      <coordinates>`;
+
+    path.forEach(res => {
+      let featuresPoint = `<Placemark>`;
+      listAllPoints.forEach(point => {
+        if (point.GEO_POI_ID == res) {
+          featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+          } `;
+          featuresPoint += `<name>${
+            point.GEO_POI_NOM
+          }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+          }</coordinates></Point></Placemark>`;
+        }
+      });
+      kmlString += featuresPoint;
+    });
+
+    featuresLineStiring += `</coordinates>
+    </LineString>
+    </Placemark>`;
+
+    kmlString += featuresLineStiring;
+    
+    path = route.path("29", "51");
+
+   featuresLineStiring = `
+    <Placemark> 
+      <name>Intineraire</name>
+      <description>Transparent green wall with yellow outlines</description>
+      <styleUrl>#lineTwo</styleUrl>
+      <LineString>
+      <extrude>1</extrude>
+      <tessellate>1</tessellate>
+      <altitudeMode>absolute</altitudeMode>
+      <coordinates>`;
+
+    path.forEach(res => {
+      let featuresPoint = `<Placemark>`;
+      listAllPoints.forEach(point => {
+        if (point.GEO_POI_ID == res) {
+          featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+          } `;
+          featuresPoint += `<name>${
+            point.GEO_POI_NOM
+          }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+          }</coordinates></Point></Placemark>`;
+        }
+      });
+      kmlString += featuresPoint;
+    });
+
+    featuresLineStiring += `</coordinates>
+    </LineString>
+    </Placemark>`;
+
+    kmlString += featuresLineStiring;
+
+    kmlString += `  </Document>
+    </kml>`;
+
+    write("output/AllBus.kml.kml", kmlString, err => {
+      if (err) {
+        throw err;
+      }
+    });
+
+    res.header("Access-Control-Allow-Origin", "*");
+    res.type("application/xml");
+    res.send(kmlString);
   }
 };
 

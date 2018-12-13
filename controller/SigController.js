@@ -110,9 +110,12 @@ var SigController = {
       }
     });
 
-    if (result.length === 0) {
-      res.json({ error: "Il n'existe pas de parcours vers ce point" });
+    if (result.length === 0) {  
+      res.header('Access-Control-Allow-Origin', '*');
+    res.type("application/xml");
+    res.send("<error>Un point n'existe pas</error>");
     } else {
+      res.header('Access-Control-Allow-Origin', '*');
       res.type("application/xml");
       res.send(resultKml);
     }
