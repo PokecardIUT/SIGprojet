@@ -9,10 +9,14 @@ var template = require("../src/template")
 var formatXML = require("../utils/indentXml")
 
 var SigController = {
+  template: (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.send(template);
+  },
   createTable: async (req, res) => {
     let points = await createTableAdj();
     res.header('Access-Control-Allow-Origin', '*');
-    res.send(template);
+    res.json(points);
   },
   parcourLargeur: async (req, res) => {
     result = [];

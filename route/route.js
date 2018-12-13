@@ -6,7 +6,8 @@ var DijkstraController = require("../controller/DijkstraController.js");
 
 // ABOUT
 
-router.get("/", SigController.createTable);
+router.get("/", SigController.template);
+router.get("/table", SigController.createTable);
 router.get("/parcourLargeur", SigController.parcourLargeur);
 router.get("/dijkstra", DijkstraController.dijkstra);
 router.get("/allBus", DijkstraController.getAllLigne);

@@ -171,7 +171,7 @@ let html =`<!DOCTYPE html>
   <script>$(document).ready(function () {
     $.ajax({
       method: "GET",
-      url: "https://sigproject.herokuapp.com/",
+      url: "https://sigproject.herokuapp.com/table",
       dataType: "json",
       success: function (data) {
         var html = "";
