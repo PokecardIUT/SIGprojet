@@ -5,12 +5,14 @@ var Point = require("../model/point.js");
 var write = require("write-file");
 var createTableAdj = require('../utils/create-table-adj.js')
 var getAllPoint = require('../utils/getAllPoints')
+var template = require("../src/template")
+var formatXML = require("../utils/indentXml")
 
 var SigController = {
   createTable: async (req, res) => {
     let points = await createTableAdj();
     res.header('Access-Control-Allow-Origin', '*');
-    res.json(points);
+    res.send(template);
   },
   parcourLargeur: async (req, res) => {
     result = [];
@@ -62,8 +64,8 @@ var SigController = {
     let kmlString = `<?xml version="1.0" encoding="UTF-8"?>
       <kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
-          <name>Dijkstra</name>
-          <Style id="yellowLineGreenPoly">
+          <name>Parcours en largeur</name>
+          <Style id="colorPL">
           <LineStyle>
             <color>${color}</color>
             <width>12</width>
@@ -71,10 +73,8 @@ var SigController = {
         </Style>`;
 
       let featuresLineStiring = `
-      <Placemark> 
-        <name>Intineraire</name>
-        <description>Transparent green wall with yellow outlines</description>
-        <styleUrl>#yellowLineGreenPoly</styleUrl>
+      <Placemark>
+        <styleUrl>#colorPL</styleUrl>
         <LineString>
         <extrude>1</extrude>
         <tessellate>1</tessellate>
@@ -105,6 +105,8 @@ var SigController = {
       kmlString += featuresLineStiring;
       kmlString += `  </Document>
       </kml>`;
+
+      kmlString = formatXML(kmlString)
 
     write("output/Parcours-largeur.kml", kmlString, err => {
       if (err) {
@@ -148,6 +150,5 @@ function imprimer(arbre, debut, fin) {
     }
   }
 }
-
 
 module.exports = SigController;

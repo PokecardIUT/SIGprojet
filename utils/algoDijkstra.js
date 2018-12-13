@@ -1,23 +1,9 @@
 var createTableAdj = require("../utils/create-table-adj.js");
 var getAllPoint = require("../utils/getAllPoints.js");
 
-async function algoDijkstra() {
-  let points = await createTableAdj();
+async function algoDijkstra(list) {
+  let points = list;
   let listAllPoints = await getAllPoint();
-  //let pointDepart = req.query.first ? `${req.query.first}` : `1`;
- // let pointFin = req.query.end ? `${req.query.end}` : `180`;
- /* let departExist = false;
-  let endExist = false;
-  points.forEach(point => {
-    if (point.sommet == req.query.first) {
-      departExist = true;
-    }
-    if (point.sommet == req.query.end) {
-      endExist = true;
-    }
-  });*/
-
- // if (departExist && endExist) {
     let stringGraph = "{";
 
     let counter2 = 0;
@@ -59,7 +45,6 @@ async function algoDijkstra() {
     stringGraph += "}";
 
     return stringGraph
-  //}
 }
 
 

@@ -1,10 +1,14 @@
-var kml = require("tokml");
 var Graph = require("node-dijkstra");
 var createTableAdj = require("../utils/create-table-adj.js");
 var getAllPoint = require("../utils/getAllPoints.js");
 var write = require("write-file");
 var algoDij = require("../utils/algoDijkstra");
-var kml2 = require("gtran-kml");
+var formatXML = require("../utils/indentXml")
+
+
+var sqlite3 = require("sqlite3").verbose();
+var db = new sqlite3.Database("lp_iem_sig.sqlite");
+var Point = require("../model/point.js");
 
 var DijkstraController = {
   dijkstra: async (req, res) => {
@@ -85,7 +89,7 @@ var DijkstraController = {
       <kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <name>Dijkstra</name>
-          <Style id="yellowLineGreenPoly">
+          <Style id="colorDij">
           <LineStyle>
             <color>${color}</color>
             <width>12</width>
@@ -94,9 +98,7 @@ var DijkstraController = {
 
       let featuresLineStiring = `
       <Placemark> 
-        <name>Intineraire</name>
-        <description>Transparent green wall with yellow outlines</description>
-        <styleUrl>#yellowLineGreenPoly</styleUrl>
+        <styleUrl>#colorDij</styleUrl>
         <LineString>
         <extrude>1</extrude>
         <tessellate>1</tessellate>
@@ -109,12 +111,12 @@ var DijkstraController = {
           if (point.GEO_POI_ID == res) {
             featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
               point.GEO_POI_LATITUDE
-            } `;
+              } `;
             featuresPoint += `<name>${
               point.GEO_POI_NOM
-            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+              }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
               point.GEO_POI_LATITUDE
-            }</coordinates></Point></Placemark>`;
+              }</coordinates></Point></Placemark>`;
           }
         });
         kmlString += featuresPoint;
@@ -127,6 +129,8 @@ var DijkstraController = {
       kmlString += featuresLineStiring;
       kmlString += `  </Document>
       </kml>`;
+
+      kmlString = formatXML(kmlString)
 
       write("output/Dijkstra.kml.kml", kmlString, err => {
         if (err) {
@@ -143,8 +147,9 @@ var DijkstraController = {
     }
   },
   getAllLigne: async (req, res) => {
+    let points = await createTableAdj();
     let listAllPoints = await getAllPoint();
-    let stringGraph = await algoDij();
+    let stringGraph = await algoDij(points);
 
     let jsonGraph;
     try {
@@ -248,12 +253,12 @@ var DijkstraController = {
         if (point.GEO_POI_ID == res) {
           featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          } `;
+            } `;
           featuresPoint += `<name>${
             point.GEO_POI_NOM
-          }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          }</coordinates></Point></Placemark>`;
+            }</coordinates></Point></Placemark>`;
         }
       });
       kmlString += featuresPoint;
@@ -283,12 +288,12 @@ var DijkstraController = {
         if (point.GEO_POI_ID == res) {
           featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          } `;
+            } `;
           featuresPoint += `<name>${
             point.GEO_POI_NOM
-          }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          }</coordinates></Point></Placemark>`;
+            }</coordinates></Point></Placemark>`;
         }
       });
       kmlString += featuresPoint;
@@ -318,12 +323,12 @@ var DijkstraController = {
         if (point.GEO_POI_ID == res) {
           featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          } `;
+            } `;
           featuresPoint += `<name>${
             point.GEO_POI_NOM
-          }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          }</coordinates></Point></Placemark>`;
+            }</coordinates></Point></Placemark>`;
         }
       });
       kmlString += featuresPoint;
@@ -340,7 +345,6 @@ var DijkstraController = {
     featuresLineStiring = `
     <Placemark> 
       <name>Ligne bus 3</name>
-      <description>Transparent green wall with yellow outlines</description>
       <styleUrl>#lineFour</styleUrl>
       <LineString>
       <extrude>1</extrude>
@@ -354,12 +358,12 @@ var DijkstraController = {
         if (point.GEO_POI_ID == res) {
           featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          } `;
+            } `;
           featuresPoint += `<name>${
             point.GEO_POI_NOM
-          }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          }</coordinates></Point></Placemark>`;
+            }</coordinates></Point></Placemark>`;
         }
       });
       kmlString += featuresPoint;
@@ -389,12 +393,12 @@ var DijkstraController = {
         if (point.GEO_POI_ID == res) {
           featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          } `;
+            } `;
           featuresPoint += `<name>${
             point.GEO_POI_NOM
-          }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          }</coordinates></Point></Placemark>`;
+            }</coordinates></Point></Placemark>`;
         }
       });
       kmlString += featuresPoint;
@@ -424,12 +428,12 @@ var DijkstraController = {
         if (point.GEO_POI_ID == res) {
           featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          } `;
+            } `;
           featuresPoint += `<name>${
             point.GEO_POI_NOM
-          }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          }</coordinates></Point></Placemark>`;
+            }</coordinates></Point></Placemark>`;
         }
       });
       kmlString += featuresPoint;
@@ -459,12 +463,12 @@ var DijkstraController = {
         if (point.GEO_POI_ID == res) {
           featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          } `;
+            } `;
           featuresPoint += `<name>${
             point.GEO_POI_NOM
-          }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          }</coordinates></Point></Placemark>`;
+            }</coordinates></Point></Placemark>`;
         }
       });
       kmlString += featuresPoint;
@@ -494,12 +498,12 @@ var DijkstraController = {
         if (point.GEO_POI_ID == res) {
           featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          } `;
+            } `;
           featuresPoint += `<name>${
             point.GEO_POI_NOM
-          }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          }</coordinates></Point></Placemark>`;
+            }</coordinates></Point></Placemark>`;
         }
       });
       kmlString += featuresPoint;
@@ -523,12 +527,419 @@ var DijkstraController = {
         if (point.GEO_POI_ID == res) {
           featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          } `;
+            } `;
           featuresPoint += `<name>${
             point.GEO_POI_NOM
-          }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          }</coordinates></Point></Placemark>`;
+            }</coordinates></Point></Placemark>`;
+        }
+      });
+      kmlString += featuresPoint;
+    });
+
+    featuresLineStiring += `</coordinates>
+    </LineString>
+    </Placemark>`;
+
+    kmlString += featuresLineStiring;
+
+    kmlString += `  </Document>
+    </kml>`;
+
+    kmlString = formatXML(kmlString)
+
+    write("output/AllBus-AllArc.kml.kml", kmlString, err => {
+      if (err) {
+        throw err;
+      }
+    });
+
+    res.header("Access-Control-Allow-Origin", "*");
+    res.type("application/xml");
+    res.send(kmlString);
+  },
+  showBusLigne: async (req, res) => {
+    let points = new Array();
+    await new Promise((resolve, reject) => {
+      db.all("SELECT * FROM GEO_POINT WHERE GEO_POI_ID", function (err, rows) {
+        if (err) {
+          throw err;
+        }
+
+        rows.forEach(row => {
+          point = new Point(row.GEO_POI_ID, row.GEO_POI_NOM, row.GEO_POI_PARTITION);
+          points.push(point);
+        });
+        resolve();
+      });
+    });
+
+    await new Promise((resolve, reject) => {
+      let i = 1;
+      points.forEach(async point => {
+        await new Promise((resolve, reject) => {
+          db.all(
+            `SELECT * FROM GEO_ARC WHERE GEO_ARC_DEB = ${
+            point.sommet
+            } OR GEO_ARC_FIN = ${point.sommet}`,
+            function (err, values) {
+              if (err) {
+                throw err;
+              }
+              values.forEach(value => {
+                if (value.GEO_ARC_DEB == point.sommet) {
+                  points.forEach(res => {
+                    if (res.sommet == value.GEO_ARC_FIN) {
+                      if (point.ligne == res.ligne) {
+                        point.addArc(value.GEO_ARC_FIN);
+                      }
+                    }
+                  })
+                }
+                if (value.GEO_ARC_FIN == point.sommet) {
+                  points.forEach(res => {
+                    if (res.sommet == point.sommet) {
+                      if (point.ligne == res.ligne) {
+                        point.addArc(value.GEO_ARC_DEB);
+                      }
+                    }
+                  })
+                }
+              });
+
+              resolve();
+            }
+          );
+        });
+        if (i == points.length) {
+          resolve();
+        }
+        i++;
+      });
+    });
+
+    let listAllPoints = await getAllPoint();
+    let stringGraph = await algoDij(points);
+
+    let jsonGraph;
+    try {
+      jsonGraph = JSON.parse(stringGraph);
+    } catch (e) {
+      throw e;
+    }
+
+    const route = new Graph(jsonGraph);
+
+    colors = Array();
+    for (let i = 0; i < 9; i++) {
+      var x = Math.round(0xffffff * Math.random()).toString(16);
+      var y = 6 - x.length;
+      var z = "000000";
+      var z1 = z.substring(0, y);
+      var color = z1 + x;
+      colors.push(color);
+    }
+
+    let path = route.path("1", "28");
+
+    let kmlString = `<?xml version="1.0" encoding="UTF-8"?>
+    <kml xmlns="http://www.opengis.net/kml/2.2">
+      <Document>
+        <name>Dijkstra</name>
+        <Style id="lineOn">
+        <LineStyle>
+          <color>${colors[0]}</color>
+          <width>12</width>
+        </LineStyle>
+      </Style>
+      <Style id="lineTwo">
+        <LineStyle>
+          <color>${colors[1]}</color>
+          <width>12</width>
+        </LineStyle>
+      </Style>
+      <Style id="lineThree">
+        <LineStyle>
+          <color>${colors[2]}</color>
+          <width>12</width>
+        </LineStyle>
+      </Style>
+      <Style id="lineFour">
+        <LineStyle>
+          <color>${colors[3]}</color>
+          <width>12</width>
+        </LineStyle>
+      </Style>
+      <Style id="lineFive">
+      <LineStyle>
+        <color>${colors[4]}</color>
+        <width>12</width>
+      </LineStyle>
+      </Style>
+      <Style id="lineSix">
+        <LineStyle>
+          <color>${colors[5]}</color>
+          <width>12</width>
+        </LineStyle>
+      </Style>
+      <Style id="lineSeven">
+        <LineStyle>
+          <color>${colors[6]}</color>
+          <width>12</width>
+        </LineStyle>
+      </Style>
+      <Style id="linHeigt">
+      <LineStyle>
+        <color>${colors[7]}</color>
+        <width>12</width>
+      </LineStyle>
+      </Style>
+      <Style id="lineNine">
+        <LineStyle>
+          <color>${colors[8]}</color>
+          <width>12</width>
+        </LineStyle>
+      </Style>
+      <Style id="lineTen">
+        <LineStyle>
+          <color>${colors[9]}</color>
+          <width>12</width>
+        </LineStyle>
+      </Style>`;
+
+    let featuresLineStiring = `
+    <Placemark> 
+      <name>Ligne bus 0</name>
+      <styleUrl>#lineOn</styleUrl>
+      <LineString>
+      <extrude>1</extrude>
+      <tessellate>1</tessellate>
+      <altitudeMode>absolute</altitudeMode>
+      <coordinates>`;
+
+    path.forEach(res => {
+      let featuresPoint = `<Placemark>`;
+      listAllPoints.forEach(point => {
+        if (point.GEO_POI_ID == res) {
+          featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+            } `;
+          featuresPoint += `<name>${
+            point.GEO_POI_NOM
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+            }</coordinates></Point></Placemark>`;
+        }
+      });
+      kmlString += featuresPoint;
+    });
+
+    featuresLineStiring += `</coordinates>
+    </LineString>
+    </Placemark>`;
+
+    kmlString += featuresLineStiring;
+
+    path = route.path("29", "53");
+
+    featuresLineStiring = `
+    <Placemark> 
+      <name>Ligne bus 1</name>
+      <styleUrl>#lineTwo</styleUrl>
+      <LineString>
+      <extrude>1</extrude>
+      <tessellate>1</tessellate>
+      <altitudeMode>absolute</altitudeMode>
+      <coordinates>`;
+
+    path.forEach(res => {
+      let featuresPoint = `<Placemark>`;
+      listAllPoints.forEach(point => {
+        if (point.GEO_POI_ID == res) {
+          featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+            } `;
+          featuresPoint += `<name>${
+            point.GEO_POI_NOM
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+            }</coordinates></Point></Placemark>`;
+        }
+      });
+      kmlString += featuresPoint;
+    });
+
+    featuresLineStiring += `</coordinates>
+    </LineString>
+    </Placemark>`;
+
+    kmlString += featuresLineStiring;
+
+    path = route.path("54", "83");
+
+    featuresLineStiring = `
+    <Placemark> 
+      <name>Ligne bus 2</name>
+      <styleUrl>#lineThree</styleUrl>
+      <LineString>
+      <extrude>1</extrude>
+      <tessellate>1</tessellate>
+      <altitudeMode>absolute</altitudeMode>
+      <coordinates>`;
+
+    path.forEach(res => {
+      let featuresPoint = `<Placemark>`;
+      listAllPoints.forEach(point => {
+        if (point.GEO_POI_ID == res) {
+          featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+            } `;
+          featuresPoint += `<name>${
+            point.GEO_POI_NOM
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+            }</coordinates></Point></Placemark>`;
+        }
+      });
+      kmlString += featuresPoint;
+    });
+
+    featuresLineStiring += `</coordinates>
+    </LineString>
+    </Placemark>`;
+
+    kmlString += featuresLineStiring;
+
+    path = route.path("84", "111");
+
+    featuresLineStiring = `
+    <Placemark> 
+      <name>Ligne bus 3</name>
+      <styleUrl>#lineFour</styleUrl>
+      <LineString>
+      <extrude>1</extrude>
+      <tessellate>1</tessellate>
+      <altitudeMode>absolute</altitudeMode>
+      <coordinates>`;
+
+    path.forEach(res => {
+      let featuresPoint = `<Placemark>`;
+      listAllPoints.forEach(point => {
+        if (point.GEO_POI_ID == res) {
+          featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+            } `;
+          featuresPoint += `<name>${
+            point.GEO_POI_NOM
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+            }</coordinates></Point></Placemark>`;
+        }
+      });
+      kmlString += featuresPoint;
+    });
+
+    featuresLineStiring += `</coordinates>
+    </LineString>
+    </Placemark>`;
+
+    kmlString += featuresLineStiring;
+
+    path = route.path("112", "155");
+
+    featuresLineStiring = `
+    <Placemark> 
+      <name>Ligne bus 4</name>
+      <styleUrl>#lineFive</styleUrl>
+      <LineString>
+      <extrude>1</extrude>
+      <tessellate>1</tessellate>
+      <altitudeMode>absolute</altitudeMode>
+      <coordinates>`;
+
+    path.forEach(res => {
+      let featuresPoint = `<Placemark>`;
+      listAllPoints.forEach(point => {
+        if (point.GEO_POI_ID == res) {
+          featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+            } `;
+          featuresPoint += `<name>${
+            point.GEO_POI_NOM
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+            }</coordinates></Point></Placemark>`;
+        }
+      });
+      kmlString += featuresPoint;
+    });
+
+    featuresLineStiring += `</coordinates>
+    </LineString>
+    </Placemark>`;
+
+    kmlString += featuresLineStiring;
+
+    path = route.path("156", "186");
+
+    featuresLineStiring = `
+    <Placemark> 
+      <name>Ligne bus 5</name>
+      <styleUrl>#lineSix</styleUrl>
+      <LineString>
+      <extrude>1</extrude>
+      <tessellate>1</tessellate>
+      <altitudeMode>absolute</altitudeMode>
+      <coordinates>`;
+
+    path.forEach(res => {
+      let featuresPoint = `<Placemark>`;
+      listAllPoints.forEach(point => {
+        if (point.GEO_POI_ID == res) {
+          featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+            } `;
+          featuresPoint += `<name>${
+            point.GEO_POI_NOM
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+            }</coordinates></Point></Placemark>`;
+        }
+      });
+      kmlString += featuresPoint;
+    });
+
+    featuresLineStiring += `</coordinates>
+    </LineString>
+    </Placemark>`;
+
+    kmlString += featuresLineStiring;
+
+    path = route.path("187", "211");
+
+    featuresLineStiring = `
+    <Placemark> 
+      <name>Ligne bus 6</name>
+      <styleUrl>#lineSeven</styleUrl>
+      <LineString>
+      <extrude>1</extrude>
+      <tessellate>1</tessellate>
+      <altitudeMode>absolute</altitudeMode>
+      <coordinates>`;
+
+    path.forEach(res => {
+      let featuresPoint = `<Placemark>`;
+      listAllPoints.forEach(point => {
+        if (point.GEO_POI_ID == res) {
+          featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+            } `;
+          featuresPoint += `<name>${
+            point.GEO_POI_NOM
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+            }</coordinates></Point></Placemark>`;
         }
       });
       kmlString += featuresPoint;
@@ -544,9 +955,8 @@ var DijkstraController = {
 
     featuresLineStiring = `
     <Placemark> 
-      <name>Ligne bus 9</name>
-      <description>Transparent green wall with yellow outlines</description>
-      <styleUrl>#lineTen</styleUrl>
+      <name>Ligne bus 7</name>
+      <styleUrl>#lineHeigt</styleUrl>
       <LineString>
       <extrude>1</extrude>
       <tessellate>1</tessellate>
@@ -559,27 +969,25 @@ var DijkstraController = {
         if (point.GEO_POI_ID == res) {
           featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          } `;
+            } `;
           featuresPoint += `<name>${
             point.GEO_POI_NOM
-          }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
             point.GEO_POI_LATITUDE
-          }</coordinates></Point></Placemark>`;
+            }</coordinates></Point></Placemark>`;
         }
       });
       kmlString += featuresPoint;
     });
 
-    featuresLineStiring += `</coordinates>
-    </LineString>
-    </Placemark>`;
-
-    kmlString += featuresLineStiring;
+ 
 
     kmlString += `  </Document>
     </kml>`;
 
-    write("output/AllBus.kml.kml", kmlString, err => {
+    kmlString = formatXML(kmlString)
+
+    write("output/AllBus-ArcBus.kml.kml", kmlString, err => {
       if (err) {
         throw err;
       }
@@ -588,6 +996,7 @@ var DijkstraController = {
     res.header("Access-Control-Allow-Origin", "*");
     res.type("application/xml");
     res.send(kmlString);
+
   }
 };
 
