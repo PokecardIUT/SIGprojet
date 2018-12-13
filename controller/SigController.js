@@ -9,6 +9,7 @@ var getAllPoint = require('../utils/getAllPoints')
 var SigController = {
   createTable: async (req, res) => {
     let points = await createTableAdj();
+    res.header('Access-Control-Allow-Origin', '*');
     res.json(points);
   },
   parcourLargeur: async (req, res) => {
@@ -52,59 +53,55 @@ var SigController = {
     imprimer(arbrePoint, pointDepart, pointFin);
     result = result.reverse();
 
-    let geojson = {
-      type: "FeatureCollection",
-      name: "Mon parcours",
+    let kmlString = `
+      <?xml version="1.0" encoding="UTF-8"?>
+      <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <name>Dijkstra</name>
+          <Style id="yellowLineGreenPoly">
+          <LineStyle>
+            <color>7f00ffff</color>
+            <width>12</width>
+          </LineStyle>
+        </Style>`;
 
-      features: [
-        {
+      let featuresLineStiring = `
+      <Placemark> 
+        <name>Intineraire</name>
+        <description>Transparent green wall with yellow outlines</description>
+        <styleUrl>#yellowLineGreenPoly</styleUrl>
+        <LineString>
+        <extrude>1</extrude>
+        <tessellate>1</tessellate>
+        <altitudeMode>absolute</altitudeMode>
+        <coordinates>`;
 
-          type: "Feature",
-          properties: {},
-          geometry: {
-
-            type: "LineString",
-            coordinates: []
+      result.forEach(res => {
+        let featuresPoint = `<Placemark>`;
+        listAllPoints.forEach(point => {
+          if (point.GEO_POI_ID == res) {
+            featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
+              point.GEO_POI_LATITUDE
+            } `;
+            featuresPoint += `<name>${
+              point.GEO_POI_NOM
+            }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+              point.GEO_POI_LATITUDE
+            }</coordinates></Point></Placemark>`;
           }
-        }
-      ]
-    };
+        });
+        kmlString += featuresPoint;
+      });
 
+      featuresLineStiring += `</coordinates>
+      </LineString>
+      </Placemark>`;
 
+      kmlString += featuresLineStiring;
+      kmlString += `  </Document>
+      </kml>`;
 
-    geojson.name = "Parcour-Largeur";
-
-
-    result.forEach(res => {
-      let LatLong = new Array();
-      let pointPlace =   {
-
-        type: "Feature",
-        properties: {
-          name: ""
-        },
-        geometry: {
-  
-          type: "Point",
-          coordinates: []
-        }
-      }
-      listAllPoints.forEach(point => {
-        if(point.GEO_POI_ID == res){
-          LatLong.push(point.GEO_POI_LONGITUDE);
-          LatLong.push(point.GEO_POI_LATITUDE);
-          pointPlace.properties.name = point.GEO_POI_NOM
-
-        }
-      })
-      pointPlace.geometry.coordinates.push(LatLong);
-      geojson.features[0].geometry.coordinates.push(LatLong);
-      geojson.features.push(pointPlace)
-    })
-
-    let resultKml = kml(geojson);
-
-    write("output/" + geojson.name + ".kml", resultKml, err => {
+    write("output/Parcours-largeur.kml", kmlString, err => {
       if (err) {
         throw err;
       }
@@ -117,7 +114,7 @@ var SigController = {
     } else {
       res.header('Access-Control-Allow-Origin', '*');
       res.type("application/xml");
-      res.send(resultKml);
+      res.send(kmlString);
     }
   }
 };
