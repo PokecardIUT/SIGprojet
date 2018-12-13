@@ -75,14 +75,19 @@ var DijkstraController = {
 
       let path = route.path(pointDepart, pointFin);
 
-      let kmlString = `
-      <?xml version="1.0" encoding="UTF-8"?>
+      var x = Math.round(0xffffff * Math.random()).toString(16);
+      var y = 6 - x.length;
+      var z = "000000";
+      var z1 = z.substring(0, y);
+      var color = z1 + x;
+
+      let kmlString = `<?xml version="1.0" encoding="UTF-8"?>
       <kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <name>Dijkstra</name>
           <Style id="yellowLineGreenPoly">
           <LineStyle>
-            <color>7f00ffff</color>
+            <color>${color}</color>
             <width>12</width>
           </LineStyle>
         </Style>`;
@@ -150,34 +155,43 @@ var DijkstraController = {
 
     const route = new Graph(jsonGraph);
 
+    colors = Array();
+    for (let i = 0; i < 9; i++) {
+      var x = Math.round(0xffffff * Math.random()).toString(16);
+      var y = 6 - x.length;
+      var z = "000000";
+      var z1 = z.substring(0, y);
+      var color = z1 + x;
+      colors.push(color);
+    }
+
     let path = route.path("1", "28");
 
-    let kmlString = `
-    <?xml version="1.0" encoding="UTF-8"?>
+    let kmlString = `<?xml version="1.0" encoding="UTF-8"?>
     <kml xmlns="http://www.opengis.net/kml/2.2">
       <Document>
         <name>Dijkstra</name>
         <Style id="lineOn">
         <LineStyle>
-          <color>00ff00</color>
+          <color>${colors[0]}</color>
           <width>12</width>
         </LineStyle>
       </Style>
       <Style id="lineTwo">
         <LineStyle>
-          <color>0000ff</color>
+          <color>${colors[1]}</color>
           <width>12</width>
         </LineStyle>
       </Style>
       <Style id="lineOn">
         <LineStyle>
-          <color>00ff00</color>
+          <color>${colors[2]}</color>
           <width>12</width>
         </LineStyle>
       </Style>
       <Style id="lineOn">
         <LineStyle>
-          <color>00ff00</color>
+          <color>${colors[3]}</color>
           <width>12</width>
         </LineStyle>
       </Style>`;
@@ -215,10 +229,10 @@ var DijkstraController = {
     </Placemark>`;
 
     kmlString += featuresLineStiring;
-    
-    path = route.path("29", "51");
 
-   featuresLineStiring = `
+    path = route.path("29", "53");
+
+    featuresLineStiring = `
     <Placemark> 
       <name>Intineraire</name>
       <description>Transparent green wall with yellow outlines</description>
@@ -251,6 +265,80 @@ var DijkstraController = {
     </Placemark>`;
 
     kmlString += featuresLineStiring;
+
+
+    path = route.path("54", "89");
+
+    featuresLineStiring = `
+    <Placemark> 
+      <name>Intineraire</name>
+      <description>Transparent green wall with yellow outlines</description>
+      <styleUrl>#lineTwo</styleUrl>
+      <LineString>
+      <extrude>1</extrude>
+      <tessellate>1</tessellate>
+      <altitudeMode>absolute</altitudeMode>
+      <coordinates>`;
+
+    path.forEach(res => {
+      let featuresPoint = `<Placemark>`;
+      listAllPoints.forEach(point => {
+        if (point.GEO_POI_ID == res) {
+          featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+          } `;
+          featuresPoint += `<name>${
+            point.GEO_POI_NOM
+          }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+          }</coordinates></Point></Placemark>`;
+        }
+      });
+      kmlString += featuresPoint;
+    });
+
+    featuresLineStiring += `</coordinates>
+    </LineString>
+    </Placemark>`;
+
+    kmlString += featuresLineStiring;
+
+    path = route.path("54", "89");
+
+    featuresLineStiring = `
+    <Placemark> 
+      <name>Intineraire</name>
+      <description>Transparent green wall with yellow outlines</description>
+      <styleUrl>#lineTwo</styleUrl>
+      <LineString>
+      <extrude>1</extrude>
+      <tessellate>1</tessellate>
+      <altitudeMode>absolute</altitudeMode>
+      <coordinates>`;
+
+    path.forEach(res => {
+      let featuresPoint = `<Placemark>`;
+      listAllPoints.forEach(point => {
+        if (point.GEO_POI_ID == res) {
+          featuresLineStiring += `${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+          } `;
+          featuresPoint += `<name>${
+            point.GEO_POI_NOM
+          }</name><Point><coordinates>${point.GEO_POI_LONGITUDE},${
+            point.GEO_POI_LATITUDE
+          }</coordinates></Point></Placemark>`;
+        }
+      });
+      kmlString += featuresPoint;
+    });
+
+    featuresLineStiring += `</coordinates>
+    </LineString>
+    </Placemark>`;
+
+    kmlString += featuresLineStiring;
+
 
     kmlString += `  </Document>
     </kml>`;

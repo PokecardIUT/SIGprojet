@@ -51,16 +51,21 @@ var SigController = {
       arbrePoint.push(arbre);
     }
     imprimer(arbrePoint, pointDepart, pointFin);
-    result = result.reverse();
 
-    let kmlString = `
-      <?xml version="1.0" encoding="UTF-8"?>
+    result = result.reverse();
+    var x=Math.round(0xffffff * Math.random()).toString(16);
+    var y=(6-x.length);
+    var z="000000";
+    var z1 = z.substring(0,y);
+    var color= z1 + x;
+
+    let kmlString = `<?xml version="1.0" encoding="UTF-8"?>
       <kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <name>Dijkstra</name>
           <Style id="yellowLineGreenPoly">
           <LineStyle>
-            <color>7f00ffff</color>
+            <color>${color}</color>
             <width>12</width>
           </LineStyle>
         </Style>`;
