@@ -10,108 +10,125 @@ var DijkstraController = {
     let listAllPoints = await getAllPoint();
     let pointDepart = req.query.first ? `${req.query.first}` : `1`;
     let pointFin = req.query.end ? `${req.query.end}` : `180`;
-    let stringGraph = "{";
-
-    let counter2 = 0;
+    let departExist = false;
+    let endExist = false;
     points.forEach(point => {
-      stringGraph += `\"${point.sommet}\": {`;
-      let counter = 0;
-      point.arc.forEach(arc => {
-        let sommet1, sommet2;
-        listAllPoints.forEach(val => {
-          if (val.GEO_POI_ID == point.sommet) {
-            sommet1 = val;
-          } else if (val.GEO_POI_ID == arc) {
-            sommet2 = val;
-          }
-        });
-
-        let distance = calculDistance(sommet1, sommet2);
-        if (distance == 0) {
-        } else {
-          if (counter == point.arc.length - 1) {
-            stringGraph += `\"${arc}\":${distance}`;
-          } else {
-            stringGraph += `\"${arc}\":${distance},`;
-          }
-        }
-        counter++;
-      });
-      if (stringGraph[stringGraph.length - 1] == ",") {
-        stringGraph = stringGraph.substring(0, stringGraph.length - 1);
+      if (point.sommet == req.query.first) {
+        departExist = true;
       }
-      if (counter2 == points.length - 1) {
-        stringGraph += "}";
-      } else {
-        stringGraph += "},";
+      if (point.sommet == req.query.end) {
+        endExist = true;
       }
-      counter2++;
     });
 
-    stringGraph += "}";
+    if (departExist && endExist) {
+      let stringGraph = "{";
 
-    let jsonGraph;
-    try {
-      jsonGraph = JSON.parse(stringGraph);
-    } catch (e) {
-      throw e;
-    }
+      let counter2 = 0;
+      points.forEach(point => {
+        stringGraph += `\"${point.sommet}\": {`;
+        let counter = 0;
+        point.arc.forEach(arc => {
+          let sommet1, sommet2;
+          listAllPoints.forEach(val => {
+            if (val.GEO_POI_ID == point.sommet) {
+              sommet1 = val;
+            } else if (val.GEO_POI_ID == arc) {
+              sommet2 = val;
+            }
+          });
 
-    const route = new Graph(jsonGraph);
+          let distance = calculDistance(sommet1, sommet2);
+          if (distance == 0) {
+          } else {
+            if (counter == point.arc.length - 1) {
+              stringGraph += `\"${arc}\":${distance}`;
+            } else {
+              stringGraph += `\"${arc}\":${distance},`;
+            }
+          }
+          counter++;
+        });
+        if (stringGraph[stringGraph.length - 1] == ",") {
+          stringGraph = stringGraph.substring(0, stringGraph.length - 1);
+        }
+        if (counter2 == points.length - 1) {
+          stringGraph += "}";
+        } else {
+          stringGraph += "},";
+        }
+        counter2++;
+      });
 
-    let path = route.path(pointDepart, pointFin);
+      stringGraph += "}";
 
-    let geojson = {
-      type: "FeatureCollection",
-      name: "Mon parcours",
-      features: [
-        {
+      let jsonGraph;
+      try {
+        jsonGraph = JSON.parse(stringGraph);
+      } catch (e) {
+        throw e;
+      }
+
+      const route = new Graph(jsonGraph);
+
+      let path = route.path(pointDepart, pointFin);
+
+      let geojson = {
+        type: "FeatureCollection",
+        name: "Mon parcours",
+        features: [
+          {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "LineString",
+              coordinates: []
+            }
+          }
+        ]
+      };
+
+      geojson.name = "Dijkstra";
+
+      path.forEach(res => {
+        let LatLong = new Array();
+        let pointPlace = {
           type: "Feature",
-          properties: {},
+          properties: {
+            name: ""
+          },
           geometry: {
-            type: "LineString",
+            type: "Point",
             coordinates: []
           }
-        }
-      ]
-    };
+        };
+        listAllPoints.forEach(point => {
+          if (point.GEO_POI_ID == res) {
+            LatLong.push(point.GEO_POI_LONGITUDE);
+            LatLong.push(point.GEO_POI_LATITUDE);
+            pointPlace.properties.name = point.GEO_POI_NOM;
+          }
+        });
+        pointPlace.geometry.coordinates.push(LatLong);
+        geojson.features[0].geometry.coordinates.push(LatLong);
+        geojson.features.push(pointPlace);
+      });
 
-    geojson.name = "Dijkstra";
+      let resultKml = kml(geojson);
 
-    path.forEach(res => {
-      let LatLong = new Array();
-      let pointPlace = {
-        type: "Feature",
-        properties: {
-          name: ""
-        },
-        geometry: {
-          type: "Point",
-          coordinates: []
-        }
-      };
-      listAllPoints.forEach(point => {
-        if (point.GEO_POI_ID == res) {
-          LatLong.push(point.GEO_POI_LONGITUDE);
-          LatLong.push(point.GEO_POI_LATITUDE);
-          pointPlace.properties.name = point.GEO_POI_NOM;
+      write("output/" + geojson.name + ".kml", resultKml, err => {
+        if (err) {
+          throw err;
         }
       });
-      pointPlace.geometry.coordinates.push(LatLong);
-      geojson.features[0].geometry.coordinates.push(LatLong);
-      geojson.features.push(pointPlace);
-    });
-
-    let resultKml = kml(geojson);
-
-    write("output/" + geojson.name + ".kml", resultKml, err => {
-      if (err) {
-        throw err;
-      }
-    });
-
+      res.header('Access-Control-Allow-Origin', '*');
+      res.type("application/xml");
+      res.send(resultKml);
+    } else {
+      res.header('Access-Control-Allow-Origin', '*');
     res.type("application/xml");
-    res.send(resultKml);
+    res.send("<error>Un point n'existe pas</error>");
+    }
   }
 };
 
