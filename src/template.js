@@ -1,4 +1,4 @@
-let html =`<!DOCTYPE html>
+let html = `<!DOCTYPE html>
 <html>
 
 <head>
@@ -154,14 +154,14 @@ let html =`<!DOCTYPE html>
     </fieldset>
     <br>
     <fieldset>
-      <legend>Toutes les lignes</legend>
-      <p> Ce fichier représent les plus cours chemins possible des début jusqu'à les fin de lignes (tous les arc y sont compris) </p>
+      <legend>Lignes de bus optimisées</legend>
+      <p> Ce fichier représente les plus cours chemins possible du début à la fin de chaque ligne (y compris tout les arcs) </p>
       <input id="btnAllBus" class="btn btn-outline-secondary" type="button" value="Télécharger" />
     </fieldset>
     <br>
     <fieldset>
-      <legend>Toutes les lignes</legend>
-      <p> Ce fichier représent les plus cours chemins possible des début jusqu'à les fin de lignes (les arc qui correspond au ligne de bus) </p>
+      <legend>Lignes de bus</legend>
+      <p> Ce fichier représente les plus cours chemins possible du début à la fin de chaque ligne (les arcs qui correspondent aux lignes de bus) </p>
       <input id="btnAllBusWithArcLigne" class="btn btn-outline-secondary" type="button" value="Télécharger" />
     </fieldset>
     <pre class="language-markup"><code id="kml" class="language-markup"></code></pre>
@@ -280,7 +280,7 @@ let html =`<!DOCTYPE html>
       let end = $("#endL").val();
       if (first === end) {
         alert("Veuillez choisir 2 arrêts différents");
-      }
+      } else {
       $.ajax({
         method: "GET",
         url: "https://sigproject.herokuapp.com/parcourLargeur?first="+first+"&end="+end,
@@ -306,11 +306,12 @@ let html =`<!DOCTYPE html>
           console.log("An error occured during accessing URL");
         }
       });
+    }
     });
   });
   </script>
 </body>
 
-</html>`
+</html>`;
 
 module.exports = html;
