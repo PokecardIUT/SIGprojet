@@ -266,7 +266,7 @@ var DijkstraController = {
 
     let featuresLineStiring = `
     <Placemark> 
-      <name>Ligne bus 0</name>
+      <name>Ligne bus 0. ${finaldistance}km</name>
       <styleUrl>#lineOn</styleUrl>
       <LineString>
       <extrude>1</extrude>
@@ -776,6 +776,20 @@ var DijkstraController = {
 
     let path = route.path("1", "28");
 
+    let finaldistance = 0;
+
+      for(let i=0; i<path.length-1; i++){
+
+        let sommet1 = path[i]
+        let sommet2 = path[i+1]
+        finaldistance += jsonGraph[sommet1][sommet2]/1000
+        
+      
+      }
+
+      finaldistance = Math.round(finaldistance*100)/100
+
+
     let kmlString = `<?xml version="1.0" encoding="UTF-8"?>
     <kml xmlns="http://www.opengis.net/kml/2.2">
       <Document>
@@ -843,7 +857,7 @@ var DijkstraController = {
 
     let featuresLineStiring = `
     <Placemark> 
-      <name>Ligne bus 0</name>
+      <name>Ligne bus 0. ${finaldistance}km</name>
       <styleUrl>#lineOn</styleUrl>
       <LineString>
       <extrude>1</extrude>
@@ -876,9 +890,23 @@ var DijkstraController = {
 
     path = route.path("29", "53");
 
+    finaldistance = 0;
+
+    for(let i=0; i<path.length-1; i++){
+
+      let sommet1 = path[i]
+      let sommet2 = path[i+1]
+      finaldistance += jsonGraph[sommet1][sommet2]/1000
+      
+    
+    }
+
+    finaldistance = Math.round(finaldistance*100)/100
+
+
     featuresLineStiring = `
     <Placemark> 
-      <name>Ligne bus 1</name>
+      <name>Ligne bus 1. ${finaldistance}km</name>
       <styleUrl>#lineTwo</styleUrl>
       <LineString>
       <extrude>1</extrude>
@@ -911,9 +939,23 @@ var DijkstraController = {
 
     path = route.path("54", "83");
 
+    finaldistance = 0;
+
+      for(let i=0; i<path.length-1; i++){
+
+        let sommet1 = path[i]
+        let sommet2 = path[i+1]
+        finaldistance += jsonGraph[sommet1][sommet2]/1000
+        
+      
+      }
+
+      finaldistance = Math.round(finaldistance*100)/100
+
+
     featuresLineStiring = `
     <Placemark> 
-      <name>Ligne bus 2</name>
+      <name>Ligne bus 2. ${finaldistance}km</name>
       <styleUrl>#lineThree</styleUrl>
       <LineString>
       <extrude>1</extrude>
@@ -946,9 +988,23 @@ var DijkstraController = {
 
     path = route.path("84", "111");
 
+    finaldistance = 0;
+
+      for(let i=0; i<path.length-1; i++){
+
+        let sommet1 = path[i]
+        let sommet2 = path[i+1]
+        finaldistance += jsonGraph[sommet1][sommet2]/1000
+        
+      
+      }
+
+      finaldistance = Math.round(finaldistance*100)/100
+
+
     featuresLineStiring = `
     <Placemark> 
-      <name>Ligne bus 3</name>
+      <name>Ligne bus 3. ${finaldistance}km</name>
       <styleUrl>#lineFour</styleUrl>
       <LineString>
       <extrude>1</extrude>
@@ -981,9 +1037,23 @@ var DijkstraController = {
 
     path = route.path("112", "155");
 
+    finaldistance = 0;
+
+    for(let i=0; i<path.length-1; i++){
+
+      let sommet1 = path[i]
+      let sommet2 = path[i+1]
+      finaldistance += jsonGraph[sommet1][sommet2]/1000
+      
+    
+    }
+
+    finaldistance = Math.round(finaldistance*100)/100
+
+
     featuresLineStiring = `
     <Placemark> 
-      <name>Ligne bus 4</name>
+      <name>Ligne bus 4. ${finaldistance}km</name>
       <styleUrl>#lineFive</styleUrl>
       <LineString>
       <extrude>1</extrude>
@@ -1016,9 +1086,23 @@ var DijkstraController = {
 
     path = route.path("156", "186");
 
+    finaldistance = 0;
+
+      for(let i=0; i<path.length-1; i++){
+
+        let sommet1 = path[i]
+        let sommet2 = path[i+1]
+        finaldistance += jsonGraph[sommet1][sommet2]/1000
+        
+      
+      }
+
+      finaldistance = Math.round(finaldistance*100)/100
+
+
     featuresLineStiring = `
     <Placemark> 
-      <name>Ligne bus 5</name>
+      <name>Ligne bus 5. ${finaldistance}km</name>
       <styleUrl>#lineSix</styleUrl>
       <LineString>
       <extrude>1</extrude>
@@ -1051,9 +1135,23 @@ var DijkstraController = {
 
     path = route.path("187", "211");
 
+    finaldistance = 0;
+
+      for(let i=0; i<path.length-1; i++){
+
+        let sommet1 = path[i]
+        let sommet2 = path[i+1]
+        finaldistance += jsonGraph[sommet1][sommet2]/1000
+        
+      
+      }
+
+      finaldistance = Math.round(finaldistance*100)/100
+
+
     featuresLineStiring = `
     <Placemark> 
-      <name>Ligne bus 6</name>
+      <name>Ligne bus 6. ${finaldistance}km</name>
       <styleUrl>#lineSeven</styleUrl>
       <LineString>
       <extrude>1</extrude>
@@ -1086,9 +1184,23 @@ var DijkstraController = {
 
     path = route.path("212", "219");
 
+    finaldistance = 0;
+
+      for(let i=0; i<path.length-1; i++){
+
+        let sommet1 = path[i]
+        let sommet2 = path[i+1]
+        finaldistance += jsonGraph[sommet1][sommet2]/1000
+        
+      
+      }
+
+      finaldistance = Math.round(finaldistance*100)/100
+
+
     featuresLineStiring = `
     <Placemark> 
-      <name>Ligne bus 7</name>
+      <name>Ligne bus 7. ${finaldistance}km</name>
       <styleUrl>#lineHeigt</styleUrl>
       <LineString>
       <extrude>1</extrude>
