@@ -79,7 +79,7 @@ var DijkstraController = {
 
       let path = route.path(pointDepart, pointFin);
 
-      let finaldistance = 0;
+      finaldistance = 0;
 
       for(let i=0; i<path.length-1; i++){
 
@@ -298,7 +298,8 @@ var DijkstraController = {
     kmlString += featuresLineStiring;
 
     path = route.path("29", "53");
-    let finaldistance = 0;
+    
+    finaldistance = 0;
 
       for(let i=0; i<path.length-1; i++){
 
@@ -346,7 +347,7 @@ var DijkstraController = {
     kmlString += featuresLineStiring;
 
     path = route.path("54", "83");
-    let finaldistance = 0;
+    finaldistance = 0;
 
       for(let i=0; i<path.length-1; i++){
 
@@ -394,7 +395,7 @@ var DijkstraController = {
     kmlString += featuresLineStiring;
 
     path = route.path("84", "111");
-    let finaldistance = 0;
+    finaldistance = 0;
 
       for(let i=0; i<path.length-1; i++){
 
@@ -442,7 +443,7 @@ var DijkstraController = {
     kmlString += featuresLineStiring;
 
     path = route.path("112", "155");
-    let finaldistance = 0;
+    finaldistance = 0;
 
       for(let i=0; i<path.length-1; i++){
 
@@ -490,7 +491,8 @@ var DijkstraController = {
     kmlString += featuresLineStiring;
 
     path = route.path("156", "186");
-    let finaldistance = 0;
+    
+    finaldistance = 0;
 
       for(let i=0; i<path.length-1; i++){
 
@@ -538,7 +540,7 @@ var DijkstraController = {
     kmlString += featuresLineStiring;
 
     path = route.path("187", "211");
-    let finaldistance = 0;
+    finaldistance = 0;
 
       for(let i=0; i<path.length-1; i++){
 
@@ -586,7 +588,7 @@ var DijkstraController = {
     kmlString += featuresLineStiring;
 
     path = route.path("212", "219");
-    let finaldistance = 0;
+    finaldistance = 0;
 
       for(let i=0; i<path.length-1; i++){
 
@@ -628,7 +630,7 @@ var DijkstraController = {
     });
 
     path = route.path("231", "259");
-    let finaldistance = 0;
+    finaldistance = 0;
 
       for(let i=0; i<path.length-1; i++){
 
