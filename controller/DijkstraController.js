@@ -79,6 +79,19 @@ var DijkstraController = {
 
       let path = route.path(pointDepart, pointFin);
 
+      let finaldistance = 0;
+
+      for(let i=0; i<path.length-1; i++){
+
+        let sommet1 = path[i]
+        let sommet2 = path[i+1]
+        finaldistance += jsonGraph[sommet1][sommet2]/1000
+        
+      
+      }
+
+      finaldistance = Math.round(finaldistance*100)/100
+
       var x = Math.round(0xffffff * Math.random()).toString(16);
       var y = 6 - x.length;
       var z = "000000";
@@ -98,6 +111,7 @@ var DijkstraController = {
 
       let featuresLineStiring = `
       <Placemark> 
+        <name>Distance : ${finaldistance}km</name>
         <styleUrl>#colorDij</styleUrl>
         <LineString>
         <extrude>1</extrude>
